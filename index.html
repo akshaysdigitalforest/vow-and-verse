@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f4ed" />
+    <meta name="description" content="Choose a wedding invitation design, make it yours, and share it with everyone you love." />
+    <title>Vow & Verse — Wedding Invitation Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Vow and Verse home"><span class="brand-mark">V<span>&amp;</span>V</span><span>vow &amp; verse<small>THE INVITATION STUDIO</small></span></a>
+      <nav><a href="#templates">Templates</a><a href="#studio">Editor</a><a href="#plans">Pricing</a></nav>
+      <a class="top-cta" href="#studio">Make an invite <span>↗</span></a>
+    </header>
+
+    <main id="top">
+      <section class="intro-hero">
+        <div class="hero-copy">
+          <p class="kicker"><span></span> WEDDING INVITATIONS, MADE PERSONAL</p>
+          <h1>A little page for<br />your <em>big forever.</em></h1>
+          <p class="hero-description">Choose a look, add your story, and make a wedding invitation that feels like the two of you.</p>
+          <a class="primary-button" href="#templates">Explore 20 designs <span>↓</span></a>
+          <div class="hero-proof"><span>✦</span> Edit in minutes <i></i> Share with one link <i></i> Yours to keep</div>
+        </div>
+        <div class="hero-art" aria-label="Sample wedding invitation preview">
+          <div class="art-shadow"></div><div class="sample-invite"><div class="sample-top">TOGETHER WITH THEIR FAMILIES</div><div class="sample-flower">✿</div><div class="sample-names">Aarav <i>&amp;</i><br />Meera</div><div class="sample-rule"></div><p>INVITE YOU TO CELEBRATE</p><strong>12 · 12 · 2026</strong><small>JAIPUR · RAJASTHAN</small></div>
+          <div class="floating-note note-top"><span>✧</span> Your style, your story</div><div class="floating-note note-bottom">Made for sharing <b>↗</b></div>
+          <div class="hero-spark spark-one">✳</div><div class="hero-spark spark-two">✧</div>
+        </div>
+      </section>
+
+      <section class="template-section section-wrap" id="templates">
+        <div class="section-heading">
+          <div><p class="kicker">THE COLLECTION</p><h2>Find your kind of <em>beautiful.</em></h2><p>Twenty starting points. Every detail is yours to change.</p></div>
+          <div class="template-count"><strong>20</strong><span>DESIGNS<br />&amp; COUNTING</span></div>
+        </div>
+        <div class="filter-row" role="group" aria-label="Filter invitation templates">
+          <button class="filter-chip selected" type="button" data-filter="all">All designs <span>20</span></button>
+          <button class="filter-chip" type="button" data-filter="free">Free to try</button>
+          <button class="filter-chip" type="button" data-filter="premium">Signature</button>
+          <label class="search-box"><span>⌕</span><input id="template-search" type="search" placeholder="Find a style…" aria-label="Search templates" /></label>
+        </div>
+        <div class="template-grid" id="template-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="studio-section section-wrap" id="studio">
+        <div class="section-heading studio-heading"><div><p class="kicker">YOUR CREATIVE STUDIO</p><h2>Make it <em>yours.</em></h2><p>Choose any design above, then watch your invitation come together as you edit.</p></div><div class="autosave" id="save-status"><span></span> Saved in this browser</div></div>
+        <div class="studio-layout">
+          <form class="editor-panel" id="editor-form">
+            <div class="panel-heading"><div class="step-number">01</div><div><p class="kicker">THE DETAILS</p><h3>Your celebration</h3></div></div>
+            <div class="field-grid">
+              <label>First name<input name="partnerOne" value="Aarav" maxlength="32" autocomplete="off" /></label>
+              <label>Second name<input name="partnerTwo" value="Meera" maxlength="32" autocomplete="off" /></label>
+              <label>Wedding date<input name="date" type="date" value="2026-12-12" /></label>
+              <label>Ceremony time<input name="time" type="time" value="17:00" /></label>
+              <label class="full-field">Venue name<input name="venue" value="The Garden Courtyard" maxlength="70" /></label>
+              <label class="full-field">City or address<input name="address" value="Jaipur, Rajasthan" maxlength="100" /></label>
+              <label class="full-field">A note for your guests<textarea name="message" rows="3" maxlength="220">With joy in our hearts, we invite you to celebrate the beginning of our forever.</textarea></label>
+              <label class="full-field">Photo URL <span class="optional">OPTIONAL</span><input name="photo" type="url" placeholder="https://…" /></label>
+            </div>
+            <details class="more-details"><summary>More details <span>+</span></summary><div class="field-grid more-fields">
+              <label>RSVP phone<input name="phone" type="tel" placeholder="Country code + number" /></label>
+              <label>Dress note<input name="dress" placeholder="Festive / Indian formal" maxlength="70" /></label>
+            </div></details>
+            <div class="editor-actions"><button class="secondary-button" id="reset-button" type="button">Reset sample</button><button class="primary-button" type="button" id="download-button">Download invitation <span>↓</span></button></div>
+            <p class="download-note">Downloads as a single HTML file. You can send it to guests or host it on GitHub Pages.</p>
+          </form>
+
+          <div class="preview-column">
+            <div class="preview-toolbar"><div><span class="live-dot"></span> LIVE PREVIEW <small id="active-template-label">01 · THE GARDEN</small></div><button id="share-button" type="button" aria-label="Copy preview link">Copy preview link <span>↗</span></button></div>
+            <article class="invite-preview theme-garden" id="invite-preview">
+              <div class="preview-photo" id="preview-photo"></div><div class="preview-content"><div class="preview-frame"><span class="preview-ornament">✿</span><p class="preview-kicker">TOGETHER WITH THEIR FAMILIES</p><h3><span data-preview="partnerOne">Aarav</span><i>&amp;</i><span data-preview="partnerTwo">Meera</span></h3><div class="preview-divider">✧</div><p class="preview-copy" data-preview="message">With joy in our hearts, we invite you to celebrate the beginning of our forever.</p><p class="preview-date" data-preview="date">12 December 2026</p><p class="preview-time" data-preview="time">5:00 PM</p><div class="preview-venue" data-preview="venue">The Garden Courtyard</div><p class="preview-address" data-preview="address">Jaipur, Rajasthan</p><p class="preview-dress" data-preview="dress"></p><a class="preview-rsvp" data-preview-rsvp href="#">KINDLY REPLY</a></div></div>
+            </article>
+            <p class="preview-hint">This is how the invite looks to your guests. Select a different design to change the mood.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="steps-section">
+        <div class="steps-inner"><p class="kicker">SIMPLE AS THAT</p><h2>From “yes” to <em>sent.</em></h2><div class="steps-grid"><article><span>01</span><h3>Choose your design</h3><p>Browse 20 invitation styles, from modern minimal to full-on festive.</p></article><article><span>02</span><h3>Add your details</h3><p>Names, dates, venue and photos. Your preview updates as you type.</p></article><article><span>03</span><h3>Share the joy</h3><p>Download your invitation page and send it to family and friends.</p></article></div></div>
+      </section>
+
+      <section class="pricing-section section-wrap" id="plans">
+        <div class="section-heading"><div><p class="kicker">GOOD THINGS, CLEAR PRICES</p><h2>Pick your <em>package.</em></h2><p>Example launch pricing. Update amounts and checkout links before selling.</p></div></div>
+        <div class="pricing-grid">
+          <article class="price-card"><p class="kicker">A LITTLE PREVIEW</p><h3>Try it</h3><p class="price">₹0 <small>/ always</small></p><p>Explore every design and edit a sample invitation.</p><ul><li>20 live previews</li><li>Edit details in your browser</li><li>Download 4 starter designs</li></ul><a class="price-button light" href="#templates">Browse designs</a></article>
+          <article class="price-card featured"><div class="popular-label">MOST LOVED</div><p class="kicker">FOR YOUR BIG DAY</p><h3>One beautiful invite</h3><p class="price">₹299 <small>/ one time</small></p><p>A complete, personal invitation page, ready to share.</p><ul><li>All 20 editable designs</li><li>Photo, event and RSVP details</li><li>Download a standalone page</li></ul><a class="price-button dark" href="#studio" data-checkout="single">Get started <span>↗</span></a></article>
+          <article class="price-card"><p class="kicker">A LITTLE EXTRA MAGIC</p><h3>Made for you</h3><p class="price">₹999 <small>/ one time</small></p><p>A polished invitation, tailored to your family's traditions.</p><ul><li>Everything in One beautiful invite</li><li>Custom colour and wording</li><li>Personal setup assistance</li></ul><a class="price-button light" href="#studio" data-checkout="custom">Ask about custom <span>↗</span></a></article>
+        </div>
+        <p class="pricing-footnote">Prices are examples. Checkout links and purchase delivery are not connected yet.</p>
+      </section>
+    </main>
+    <footer class="site-footer"><a class="brand" href="#top"><span class="brand-mark">V<span>&amp;</span>V</span><span>vow &amp; verse<small>THE INVITATION STUDIO</small></span></a><p>Made with a little love and a lot of celebration. <span>✧</span></p><a href="#top">Back to top ↑</a></footer>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
