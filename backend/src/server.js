@@ -15,7 +15,7 @@ const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_DATA_BYTES = 30_000;
 const ALLOWED_FIELDS = new Set([
   "templateId", "partnerOne", "partnerTwo", "date", "time", "venue", "address", "hotel", "hotelMapUrl",
-  "message", "photo", "phone", "dress", "eventOne", "eventOneTime", "eventTwo", "events",
+  "message", "photo", "video", "phone", "dress", "eventOne", "eventOneTime", "eventTwo", "events",
   "eventTwoTime", "gallery",
 ]);
 
@@ -67,6 +67,7 @@ async function createAssetUrls(data) {
   const gallery = (data.gallery || "").split(/\r?\n/).map((url) => url.trim()).filter(Boolean).slice(0, 3);
   return {
     photo: await makeViewUrl(data.photo || ""),
+    video: await makeViewUrl(data.video || ""),
     gallery: await Promise.all(gallery.map(makeViewUrl)),
   };
 }

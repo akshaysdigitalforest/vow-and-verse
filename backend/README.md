@@ -1,6 +1,6 @@
 # Vow & Verse beta API
 
-GitHub Pages serves the public editor. This API stores invitation drafts and RSVP replies in Firestore, and privately stores photos in Cloud Storage. Guests receive temporary, signed photo links when they open an invitation; the bucket itself is not public.
+GitHub Pages serves the public editor. This API stores invitation drafts and RSVP replies in Firestore, and privately stores uploaded photos in Cloud Storage. Cover videos use a creator-provided direct HTTPS video link; the API does not copy those videos into the bucket. Guests receive temporary, signed photo links when they open an invitation; the bucket itself is not public.
 
 ## Beta deployment
 
@@ -61,6 +61,7 @@ Commit and push the frontend update to `main`; GitHub Pages will publish it. The
 - The QR download endpoint creates a PNG that opens the same public guest link as the copied URL.
 - Venue and address are searched together in Google Maps. An optional hotel name and Google Maps share URL add a separate hotel directions link to the guest invitation.
 - Uploaded photos go directly from the browser to the private bucket using a signed upload policy, with an 8 MB server-enforced limit per image.
+- A direct HTTPS MP4 or WebM cover video URL is saved with the invitation and played muted on a loop. The cover image is its poster/fallback; YouTube and Google Drive share pages are not direct video links. Video hosting and bandwidth are handled by the linked host.
 - A guest link reads invitation details from Firestore and receives temporary signed photo URLs. RSVP replies are stored in Firestore; only the invitation owner can read the reply list.
 - The API allows beta traffic from the GitHub Pages domain and localhost. The API has a per-instance request limit and Cloud Run has a one-instance maximum.
 - Downloaded standalone invitation files use temporary signed photo links, so use the hosted guest link when sharing uploaded images.
