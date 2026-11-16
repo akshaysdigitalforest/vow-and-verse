@@ -6,7 +6,7 @@ A static wedding invitation studio made with HTML, CSS and vanilla JavaScript. T
 
 - 20 selectable wedding invitation themes with free/signature labels and style filters.
 - Live, scrollable preview of a multi-section guest invitation website: cover, countdown, story, schedule, location/map link, and RSVP.
-- Editor for names, date, event details, cover background image URL, story, RSVP phone, and dress note.
+- Editor for names, date, event details, cover background image URL, story, optional gallery images, RSVP phone, and dress note.
 - Browser-local draft autosave, unique guest link, and standalone HTML website download.
 - Responsive storefront, example packages, and configurable external checkout links.
 
