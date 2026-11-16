@@ -358,6 +358,25 @@ document.getElementById("refresh-rsvps").addEventListener("click", loadRsvps);
 document.getElementById("reset-button").addEventListener("click", () => {
   draft = { ...defaultDraft }; form.reset(); setFieldValues(); renderPreview(); saveDraft(); showToast("Sample invitation restored.");
 });
+document.getElementById("open-invite-button").addEventListener("click", async () => {
+  const guestWindow = window.open("about:blank", "_blank");
+  if (!guestWindow) { showToast("Allow pop-ups to open the guest website."); return; }
+  guestWindow.opener = null;
+  try {
+    let url;
+    if (apiBaseUrl) {
+      const record = await ensureCloudInvite();
+      await saveCloudDraft();
+      url = `${location.origin}${location.pathname}?invitation=${encodeURIComponent(record.slug)}`;
+    } else {
+      url = `${location.origin}${location.pathname}?invite=${encodeURIComponent(JSON.stringify({ ...draft }))}`;
+    }
+    guestWindow.location.replace(url);
+  } catch (error) {
+    guestWindow.close();
+    showToast(error.message);
+  }
+});
 document.getElementById("share-button").addEventListener("click", async () => {
   let url;
   try {

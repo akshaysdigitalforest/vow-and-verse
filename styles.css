@@ -8,3 +8,5 @@
 .note-bottom{right:2%;bottom:0;transform:translateY(100%)}@media(max-width:760px){.note-bottom{right:0;bottom:0;transform:translateY(100%)}}
 
 .more-details summary{padding:3px 0}.more-details[open]{padding-bottom:15px}.preview-toolbar{gap:10px;flex-wrap:wrap}.preview-toolbar .preview-share-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.preview-toolbar .preview-share-actions button{border:1px solid #ffffff4d;background:transparent;color:#f2ecdf;padding:8px 10px;border-radius:2px;font:500 9px var(--sans);letter-spacing:0;white-space:nowrap}.preview-toolbar .preview-share-actions button:hover{background:#fffefa;color:#293128}.preview-toolbar .preview-share-actions button:disabled{opacity:.55;cursor:wait}
+
+.editor-panel{color:var(--ink)}
