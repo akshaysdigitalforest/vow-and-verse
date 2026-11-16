@@ -1,6 +1,7 @@
 // Store checkout links here after creating digital products in your chosen checkout service.
 // GitHub Pages cannot keep a secret or verify a purchase; use a server/API for secure access control.
 const storeSettings = {
+  betaMode: true,
   checkoutLinks: { single: "", custom: "" },
   currency: "INR",
   prices: { single: 299, custom: 999 },
@@ -79,7 +80,7 @@ function renderTemplates() {
     const [bg, accent, ink] = item.colors;
     return `<button class="template-card${selected ? " active" : ""}" type="button" data-template="${item.id}" aria-pressed="${selected}" aria-label="Choose ${safeText(item.name)} invitation">
       <div class="mini-art ${item.layout}" style="--card-paper:${bg};--card-accent:${accent};--card-ink:${ink}"><div class="mini-inner"><div class="mini-label">YOU'RE INVITED</div><div class="mini-names"><span>${safeText(draft.partnerOne || "Your Name")}</span><i>&amp;</i><span>${safeText(draft.partnerTwo || "Your Love")}</span></div><div class="mini-date">${formatDate(draft.date, true)}</div></div><span class="mini-deco deco-a">❧</span><span class="mini-deco deco-b">✿</span></div>
-      <div class="template-info"><div><h3>${String(item.id).padStart(2, "0")} · ${safeText(item.name)}</h3><p>${safeText(item.mood)}</p></div><span class="template-badge ${item.group === "premium" ? "signature" : ""}">${item.group === "free" ? "FREE" : "SIGNATURE"}</span></div>
+      <div class="template-info"><div><h3>${String(item.id).padStart(2, "0")} · ${safeText(item.name)}</h3><p>${safeText(item.mood)}</p><p class="template-action">${selected ? "SELECTED · EDIT BELOW" : "TAP TO CUSTOMIZE ↗"}</p></div><span class="template-badge ${item.group === "premium" ? "signature" : ""}">${storeSettings.betaMode ? "BETA FREE" : item.group === "free" ? "FREE" : "SIGNATURE"}</span></div>
     </button>`;
   }).join("");
   if (!filtered.length) templateGrid.innerHTML = '<p class="empty-state">No designs match that search. Try another style.</p>';
@@ -87,6 +88,8 @@ function renderTemplates() {
     draft.templateId = Number(card.dataset.template);
     renderTemplates(); renderPreview(); saveDraft();
     document.getElementById("active-template-label").textContent = `${String(draft.templateId).padStart(2, "0")} · ${activeTemplate().name.toUpperCase()}`;
+    document.getElementById("studio").scrollIntoView({ behavior: "smooth", block: "start" });
+    showToast(`${activeTemplate().name} selected. Edit the details below.`);
   }));
 }
 
@@ -150,7 +153,7 @@ function makeInviteDocument() {
 
 function downloadInvitation() {
   const selected = activeTemplate();
-  if (selected.group === "premium") {
+  if (selected.group === "premium" && !storeSettings.betaMode) {
     showToast("Signature downloads need a checkout link. Free designs are ready to download.");
     return;
   }
@@ -158,7 +161,7 @@ function downloadInvitation() {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a"); link.href = url; link.download = `${(draft.partnerOne || "wedding").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-invitation.html`;
   document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showToast("Your invitation file is ready to share.");
+  showToast(storeSettings.betaMode ? "Beta invitation downloaded. All 20 designs are free to try." : "Your invitation file is ready to share.");
 }
 
 function loadSharedDraft() {
