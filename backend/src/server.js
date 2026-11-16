@@ -15,7 +15,7 @@ const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_DATA_BYTES = 30_000;
 const ALLOWED_FIELDS = new Set([
   "templateId", "partnerOne", "partnerTwo", "date", "time", "venue", "address", "hotel", "hotelMapUrl",
-  "message", "photo", "phone", "dress", "eventOne", "eventOneTime", "eventTwo",
+  "message", "photo", "phone", "dress", "eventOne", "eventOneTime", "eventTwo", "events",
   "eventTwoTime", "gallery",
 ]);
 
@@ -75,6 +75,14 @@ function cleanData(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw Object.assign(new Error("Invitation details are required."), { status: 400 });
   const result = {};
   for (const [key, value] of Object.entries(input)) {
+    if (key === "events" && Array.isArray(value)) {
+      result.events = value.slice(0, 12).map((event) => ({
+        title: typeof event?.title === "string" ? event.title.trim().slice(0, 70) : "",
+        tagline: typeof event?.tagline === "string" ? event.tagline.trim().slice(0, 140) : "",
+        time: typeof event?.time === "string" ? event.time.trim().slice(0, 40) : "",
+      }));
+      continue;
+    }
     if (key === "templateId" && ["number", "string"].includes(typeof value)) {
       const templateId = Number(value);
       if (Number.isInteger(templateId) && templateId >= 1 && templateId <= 20) result.templateId = String(templateId);

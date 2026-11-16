@@ -9,9 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=beta-8" />
+    <link rel="stylesheet" href="styles.css?v=beta-9" />
     <script src="config.js?v=beta-4" defer></script>
-    <script src="script.js?v=beta-8" defer></script>
+    <script src="script.js?v=beta-9" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -69,10 +69,11 @@
             <details class="more-details" open><summary>More details <span>+</span></summary><div class="field-grid more-fields">
               <label>WhatsApp for standalone invitations<input name="phone" type="tel" placeholder="Country code + number" /><small>Hosted guest links save RSVPs here. Downloaded invitations can open WhatsApp.</small></label>
               <label>Dress note<input name="dress" placeholder="Festive / Indian formal" maxlength="70" /></label>
-              <label>Event one<input name="eventOne" value="Wedding Ceremony" maxlength="50" /></label>
-              <label>Event one time<input name="eventOneTime" value="5:00 PM" maxlength="30" /></label>
-              <label>Event two<input name="eventTwo" value="Dinner & Celebration" maxlength="50" /></label>
-              <label>Event two time<input name="eventTwoTime" value="7:00 PM" maxlength="30" /></label>
+              <div class="full-field event-editor">
+                <div class="event-editor-intro"><strong>Your event schedule</strong><p>Add each celebration as its own event with a name, time, and memorable little line.</p></div>
+                <div class="event-editor-list" id="event-editor-list"></div>
+                <button class="secondary-button" id="add-event-button" type="button">+ Add another event</button>
+              </div>
               <label>Hotel or suggested stay<input name="hotel" placeholder="Hotel name (optional)" maxlength="100" /></label>
               <label>Hotel Google Maps link<input name="hotelMapUrl" type="url" placeholder="Paste a Google Maps share link" /><small>In Google Maps, open the hotel and choose Share.</small></label>
               <label class="full-field">Gallery image URLs <span class="optional">OPTIONAL · ONE PER LINE</span><textarea name="gallery" rows="3" placeholder="https://photo-one.jpg&#10;https://photo-two.jpg&#10;https://photo-three.jpg"></textarea><small>Or upload up to three images here.</small></label>

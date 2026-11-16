@@ -53,7 +53,9 @@ const defaultDraft = {
 };
 
 const storageKey = "vow-verse-draft-v1";
-let draft = { ...defaultDraft, ...readSavedDraft() };
+const savedDraft = readSavedDraft();
+let draft = { ...defaultDraft, ...savedDraft };
+draft.events = normalizeEvents(savedDraft.events, draft);
 let activeFilter = "all";
 let toastTimer;
 let cloudInvite = readCloudInvite();
@@ -74,6 +76,19 @@ function readSavedDraft() {
   catch { return {}; }
 }
 
+function normalizeEvents(events, source = {}) {
+  const sourceEvents = Array.isArray(events) ? events : [
+    { title: source.eventOne || "Wedding Ceremony", tagline: "The moment we say ‘I do.’", time: source.eventOneTime || "5:00 PM" },
+    { title: source.eventTwo || "Dinner & Celebration", tagline: "Dinner, music and a little dancing.", time: source.eventTwoTime || "7:00 PM" },
+  ];
+  const normalized = sourceEvents.slice(0, 12).map((item) => ({
+    title: String(item?.title || "").slice(0, 70),
+    tagline: String(item?.tagline || "").slice(0, 140),
+    time: String(item?.time || "").slice(0, 40),
+  }));
+  return normalized.length ? normalized : [{ title: "", tagline: "", time: "" }];
+}
+
 function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
@@ -91,6 +106,8 @@ function setFieldValues() {
     const field = form.elements.namedItem(key);
     if (field && typeof value === "string") field.value = value;
   });
+  draft.events = normalizeEvents(draft.events, draft);
+  renderEventEditor();
   syncMediaFields();
 }
 
@@ -100,8 +117,23 @@ function syncMediaFields() {
   form.elements.namedItem("gallery").value = savedGallery.map((url, index) => assetUrls.gallery[index] || url).join("\n");
 }
 
+function renderEventEditor() {
+  const list = document.getElementById("event-editor-list");
+  if (!list) return;
+  draft.events = normalizeEvents(draft.events, draft);
+  list.innerHTML = draft.events.map((item, index) => `<fieldset class="event-editor-card">
+    <legend>EVENT ${String(index + 1).padStart(2, "0")}</legend>
+    <label>Event name<input data-event-index="${index}" data-event-field="title" maxlength="70" placeholder="e.g. Haldi, Sangeet, Reception" value="${safeText(item.title)}" /></label>
+    <label>Time<input data-event-index="${index}" data-event-field="time" maxlength="40" placeholder="e.g. 5:00 PM" value="${safeText(item.time)}" /></label>
+    <label class="full-field">Short punch line<textarea data-event-index="${index}" data-event-field="tagline" rows="2" maxlength="140" placeholder="A little line guests will remember">${safeText(item.tagline)}</textarea><small>Optional · up to 140 characters</small></label>
+    <div class="event-editor-actions full-field"><span>Appears in the invitation schedule</span><button class="secondary-button" type="button" data-remove-event="${index}" aria-label="Remove event ${index + 1}" ${draft.events.length === 1 ? "disabled" : ""}>Remove</button></div>
+  </fieldset>`).join("");
+  document.getElementById("add-event-button").disabled = draft.events.length >= 12;
+}
+
 function applyCloudInvitation(result) {
   draft = { ...defaultDraft, ...result.data };
+  draft.events = normalizeEvents(result.data?.events, draft);
   assetUrls = {
     photo: result.assets?.photo || draft.photo || "",
     gallery: Array.isArray(result.assets?.gallery) ? result.assets.gallery : [],
@@ -284,12 +316,13 @@ function makeInviteDocument(invitationId = "", media = assetUrls) {
   const photos = (draft.gallery || "").split(/\r?\n/).map((url, index) => (media?.gallery?.[index] || url).trim()).filter((url) => /^https?:\/\//i.test(url)).slice(0, 3);
   const galleryNav = photos.length ? '<a href="#moments">Gallery</a>' : "";
   const gallerySection = photos.length ? `<section class="section reveal" id="moments"><div class="inner"><p class="label">LITTLE MOMENTS, BIG LOVE</p><h2>A few favorite memories.</h2><div class="gallery-grid">${photos.map((url, index) => `<figure><img src="${safeText(url)}" alt="Celebration memory ${index + 1}" loading="lazy"></figure>`).join("")}</div></div></section>` : "";
+  const eventCards = normalizeEvents(draft.events, draft).map((item, index) => `<article class="card"><small>${String(index + 1).padStart(2, "0")} · EVENT</small><h3>${safeText(item.title || "A celebration to remember")}</h3>${item.tagline ? `<p class="event-tagline">${safeText(item.tagline)}</p>` : ""}${item.time ? `<p>${safeText(item.time)}</p>` : ""}<p>${safeText(draft.venue || "Venue details soon")}</p></article>`).join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="${bg}"><meta name="description" content="Wedding celebration of ${one} and ${two}"><title>${one} &amp; ${two} — Wedding Celebration</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet"><style>
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}body{margin:0;background:#fbf8f1;color:${ink};font-family:'DM Sans',Arial,sans-serif}a{color:inherit;text-decoration:none}.nav{position:fixed;z-index:5;inset:0 0 auto;display:flex;justify-content:center;gap:clamp(18px,5vw,64px);padding:18px 12px;color:white;font-size:9px;letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(#0006,transparent)}.nav a{padding:8px 0;border-bottom:1px solid transparent}.nav a:hover{border-color:white}.cover{min-height:100svh;display:grid;place-items:center;position:relative;text-align:center;color:#fff;background:${bg};background-image:linear-gradient(180deg,#18140b66,#18140b22 45%,#18140b88),${image};background-size:cover;background-position:center;padding:100px 24px 60px}.cover:after{content:'';position:absolute;inset:18px;border:1px solid ${accent}aa;pointer-events:none}.cover-inner{position:relative;z-index:1;max-width:850px}.eyebrow{font-size:9px;letter-spacing:.27em;text-transform:uppercase}.ornament{font:38px 'Great Vibes',cursive;color:${accent};margin:16px}.cover h1{font:400 clamp(50px,10vw,108px)/1 'Playfair Display',Georgia,serif;letter-spacing:-.06em;margin:18px 0}.cover h1 i{display:block;font:italic 22px 'Playfair Display',serif;color:${accent};margin:12px}.date{font-size:11px;letter-spacing:.23em;text-transform:uppercase;margin:28px 0 8px}.place{font-size:9px;letter-spacing:.18em;text-transform:uppercase}.countdown{display:flex;justify-content:center;gap:clamp(16px,4vw,38px);margin:34px auto}.countdown div{min-width:46px}.countdown strong{display:block;font:400 28px 'Playfair Display',serif}.countdown span{font-size:8px;letter-spacing:.14em;text-transform:uppercase}.button{display:inline-block;border:1px solid currentColor;padding:13px 20px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin:10px}.section{padding:96px 22px;text-align:center}.inner{max-width:940px;margin:auto}.label{font-size:9px;letter-spacing:.23em;color:${accent};text-transform:uppercase}.section h2{font:400 clamp(38px,6vw,62px)/1.1 'Playfair Display',serif;margin:14px 0 22px}.story{max-width:620px;margin:auto;color:#6d695f;font:17px/1.9 'Playfair Display',serif}.signature{font:36px 'Great Vibes',cursive;color:${accent};margin:24px}.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:36px auto;max-width:980px}.gallery-grid figure{margin:0;min-height:220px;background:#eee;overflow:hidden}.gallery-grid img{width:100%;height:100%;min-height:220px;object-fit:cover;transition:transform .45s}.gallery-grid figure:hover img{transform:scale(1.04)}.events{background:${bg}16}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:760px;margin:38px auto}.card{padding:34px 20px;background:#fffdf8;border:1px solid ${accent}55}.card small{font:italic 14px 'Playfair Display',serif;color:${accent}}.card h3{font:400 27px 'Playfair Display',serif;margin:15px 0}.card p{font-size:12px;line-height:1.7;color:#706c63;margin:6px}.dress{font:italic 14px 'Playfair Display',serif;color:#706c63}.travel{background:#f2ede2}.map-links{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:20px}.map{border-bottom:1px solid ${accent};padding:9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}.hotel-note{font:italic 14px 'Playfair Display',serif;color:#706c63;margin:10px 0 0}.rsvp{background:${bg};color:white}.rsvp .label{color:${accent}}.rsvp .story{color:#eee9de}.form{display:grid;gap:12px;max-width:440px;margin:28px auto}.form input,.form select,.form textarea{width:100%;padding:14px;border:1px solid #ffffff60;background:#ffffff12;color:white;font:13px 'DM Sans',sans-serif}.form select option{color:#222}.form button{border:0;background:${accent};color:${ink};padding:16px;font:700 10px 'DM Sans',sans-serif;letter-spacing:.15em;text-transform:uppercase;cursor:pointer}.note{font-size:10px;color:#ffffffaa}.footer{padding:32px 20px;text-align:center;background:#171914;color:#ddd;font-size:10px;letter-spacing:.1em}.reveal{opacity:0;transform:translateY(16px);transition:.7s}.reveal.visible{opacity:1;transform:none}@media(max-width:600px){.nav{gap:13px;font-size:8px}.cover:after{inset:10px}.cover h1{font-size:56px}.section{padding:72px 18px}.cards{grid-template-columns:1fr}.gallery-grid{grid-template-columns:1fr}.gallery-grid figure,.gallery-grid img{min-height:260px}}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}body{margin:0;background:#fbf8f1;color:${ink};font-family:'DM Sans',Arial,sans-serif}a{color:inherit;text-decoration:none}.nav{position:fixed;z-index:5;inset:0 0 auto;display:flex;justify-content:center;gap:clamp(18px,5vw,64px);padding:18px 12px;color:white;font-size:9px;letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(#0006,transparent)}.nav a{padding:8px 0;border-bottom:1px solid transparent}.nav a:hover{border-color:white}.cover{min-height:100svh;display:grid;place-items:center;position:relative;text-align:center;color:#fff;background:${bg};background-image:linear-gradient(180deg,#18140b66,#18140b22 45%,#18140b88),${image};background-size:cover;background-position:center;padding:100px 24px 60px}.cover:after{content:'';position:absolute;inset:18px;border:1px solid ${accent}aa;pointer-events:none}.cover-inner{position:relative;z-index:1;max-width:850px}.eyebrow{font-size:9px;letter-spacing:.27em;text-transform:uppercase}.ornament{font:38px 'Great Vibes',cursive;color:${accent};margin:16px}.cover h1{font:400 clamp(50px,10vw,108px)/1 'Playfair Display',Georgia,serif;letter-spacing:-.06em;margin:18px 0}.cover h1 i{display:block;font:italic 22px 'Playfair Display',serif;color:${accent};margin:12px}.date{font-size:11px;letter-spacing:.23em;text-transform:uppercase;margin:28px 0 8px}.place{font-size:9px;letter-spacing:.18em;text-transform:uppercase}.countdown{display:flex;justify-content:center;gap:clamp(16px,4vw,38px);margin:34px auto}.countdown div{min-width:46px}.countdown strong{display:block;font:400 28px 'Playfair Display',serif}.countdown span{font-size:8px;letter-spacing:.14em;text-transform:uppercase}.button{display:inline-block;border:1px solid currentColor;padding:13px 20px;font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin:10px}.section{padding:96px 22px;text-align:center}.inner{max-width:940px;margin:auto}.label{font-size:9px;letter-spacing:.23em;color:${accent};text-transform:uppercase}.section h2{font:400 clamp(38px,6vw,62px)/1.1 'Playfair Display',serif;margin:14px 0 22px}.story{max-width:620px;margin:auto;color:#6d695f;font:17px/1.9 'Playfair Display',serif}.signature{font:36px 'Great Vibes',cursive;color:${accent};margin:24px}.gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:36px auto;max-width:980px}.gallery-grid figure{margin:0;min-height:220px;background:#eee;overflow:hidden}.gallery-grid img{width:100%;height:100%;min-height:220px;object-fit:cover;transition:transform .45s}.gallery-grid figure:hover img{transform:scale(1.04)}.events{background:${bg}16}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:760px;margin:38px auto}.card{padding:34px 20px;background:#fffdf8;border:1px solid ${accent}55}.card small{font:italic 14px 'Playfair Display',serif;color:${accent}}.card h3{font:400 27px 'Playfair Display',serif;margin:15px 0}.card p{font-size:12px;line-height:1.7;color:#706c63;margin:6px}.card .event-tagline{font:italic 15px/1.6 'Playfair Display',serif;color:#706c63}.dress{font:italic 14px 'Playfair Display',serif;color:#706c63}.travel{background:#f2ede2}.map-links{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:20px}.map{border-bottom:1px solid ${accent};padding:9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase}.hotel-note{font:italic 14px 'Playfair Display',serif;color:#706c63;margin:10px 0 0}.rsvp{background:${bg};color:white}.rsvp .label{color:${accent}}.rsvp .story{color:#eee9de}.form{display:grid;gap:12px;max-width:440px;margin:28px auto}.form input,.form select,.form textarea{width:100%;padding:14px;border:1px solid #ffffff60;background:#ffffff12;color:white;font:13px 'DM Sans',sans-serif}.form select option{color:#222}.form button{border:0;background:${accent};color:${ink};padding:16px;font:700 10px 'DM Sans',sans-serif;letter-spacing:.15em;text-transform:uppercase;cursor:pointer}.note{font-size:10px;color:#ffffffaa}.footer{padding:32px 20px;text-align:center;background:#171914;color:#ddd;font-size:10px;letter-spacing:.1em}.reveal{opacity:0;transform:translateY(16px);transition:.7s}.reveal.visible{opacity:1;transform:none}@media(max-width:600px){.nav{gap:13px;font-size:8px}.cover:after{inset:10px}.cover h1{font-size:56px}.section{padding:72px 18px}.cards{grid-template-columns:1fr}.gallery-grid{grid-template-columns:1fr}.gallery-grid figure,.gallery-grid img{min-height:260px}}
 </style></head><body><nav class="nav" aria-label="Invitation sections"><a href="#story">Our story</a><a href="#events">The day</a>${galleryNav}<a href="#travel">Location</a><a href="#rsvp">RSVP</a></nav>
 <header class="cover"><div class="cover-inner"><p class="eyebrow">TOGETHER WITH OUR FAMILIES</p><div class="ornament">✧</div><h1>${names}</h1><p class="eyebrow">INVITE YOU TO CELEBRATE</p><p class="date">${safeText(formatDate(draft.date))}</p><p class="place">${safeText(draft.venue || "Our wedding")}${draft.address ? ` · ${safeText(draft.address)}` : ""}</p><div class="countdown" id="countdown" data-date="${Number.isFinite(dateMs) ? dateMs : 0}"><div><strong data-unit="days">00</strong><span>Days</span></div><div><strong data-unit="hours">00</strong><span>Hours</span></div><div><strong data-unit="minutes">00</strong><span>Minutes</span></div><div><strong data-unit="seconds">00</strong><span>Seconds</span></div></div><a class="button" href="#story">Explore our invitation ↓</a></div></header>
 <main><section class="section reveal" id="story"><div class="inner"><p class="label">A NOTE FROM US</p><h2>Our next chapter<br><i>starts with you.</i></h2><p class="story">${safeText(draft.message || "We would love to celebrate this day with you.")}</p><p class="signature">${one} &amp; ${two}</p></div></section>
-<section class="section events reveal" id="events"><div class="inner"><p class="label">SAVE THE DATE</p><h2>A day to remember.</h2><p class="story">${safeText(formatDate(draft.date))}</p><div class="cards"><article class="card"><small>01 · Ceremony</small><h3>${safeText(draft.eventOne || "Wedding Ceremony")}</h3><p>${safeText(draft.eventOneTime || formatTime(draft.time))}</p><p>${safeText(draft.venue || "Venue details soon")}</p></article><article class="card"><small>02 · Celebration</small><h3>${safeText(draft.eventTwo || "Dinner & Celebration")}</h3><p>${safeText(draft.eventTwoTime || "")}</p><p>${safeText(draft.venue || "Venue details soon")}</p></article></div>${draft.dress ? `<p class="dress">Attire · ${safeText(draft.dress)}</p>` : ""}</div></section>
+<section class="section events reveal" id="events"><div class="inner"><p class="label">SAVE THE DATE</p><h2>A day to remember.</h2><p class="story">${safeText(formatDate(draft.date))}</p><div class="cards">${eventCards}</div>${draft.dress ? `<p class="dress">Attire · ${safeText(draft.dress)}</p>` : ""}</div></section>
 ${gallerySection}<section class="section travel reveal" id="travel"><div class="inner"><p class="label">COME CELEBRATE WITH US</p><h2>Meet us in<br><i>${safeText(draft.address || "our favourite place")}</i></h2><p class="story">${safeText(draft.venue || "Wedding venue")}${draft.address ? `<br>${safeText(draft.address)}` : ""}</p><div class="map-links"><a class="map" href="${venueMapHref}" target="_blank" rel="noopener noreferrer">Search venue in Google Maps ↗</a>${draft.hotel ? `<p class="hotel-note">${safeText(draft.hotel)}</p><a class="map" href="${hotelMapHref}" target="_blank" rel="noopener noreferrer">${safeGoogleMapsUrl(draft.hotelMapUrl) ? "Open hotel in Google Maps ↗" : "Search hotel in Google Maps ↗"}</a>` : ""}</div></div></section>
 <section class="section rsvp reveal" id="rsvp"><div class="inner"><p class="label">KINDLY REPLY</p><h2>Will you join us?</h2><p class="story">It would mean the world to celebrate together.</p><form class="form" id="rsvp-form"><input name="guest" required maxlength="60" placeholder="Your name" aria-label="Your name"><select name="attendance" aria-label="Will you attend?"><option value="yes">Joyfully accepts</option><option value="no">Sadly declines</option></select><select name="guests" aria-label="Number of guests"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select><textarea name="note" rows="2" maxlength="160" placeholder="A note for the couple (optional)" aria-label="A note for the couple"></textarea><button type="submit">${guestInvitationId ? "Send RSVP" : "Send RSVP on WhatsApp"}</button></form><p class="note">${guestInvitationId ? "Your RSVP goes directly to the couple." : phone ? "RSVP opens WhatsApp with your response ready to send." : "RSVP details will be shared soon."}${draft.dress ? ` · Attire: ${safeText(draft.dress)}` : ""}</p></div></section></main><footer class="footer">MADE WITH LOVE · ${one} &amp; ${two}</footer>
 <script>(function(){const apiBase=${apiEndpoint},invitationId=${guestInvitationId};const c=document.getElementById('countdown'),t=Number(c.dataset.date);function tick(){let s=Math.max(0,Math.floor((t-Date.now())/1000)),v={days:Math.floor(s/86400),hours:Math.floor(s%86400/3600),minutes:Math.floor(s%3600/60),seconds:s%60};Object.keys(v).forEach(k=>c.querySelector('[data-unit="'+k+'"]').textContent=String(v[k]).padStart(2,'0'))}tick();setInterval(tick,1000);const items=[...document.querySelectorAll('.reveal')];if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});items.forEach(x=>io.observe(x))}else items.forEach(x=>x.classList.add('visible'));document.getElementById('rsvp-form').addEventListener('submit',e=>{e.preventDefault();const phone='${phone}';if(!phone&&!(apiBase&&invitationId)){alert('The couple has not enabled WhatsApp RSVPs yet. Please contact them directly.');return}const f=new FormData(e.currentTarget),data={guestName:String(f.get('guest')||'').trim(),attendance:f.get('attendance'),guests:f.get('guests'),note:f.get('note')||''};if(apiBase&&invitationId){fetch(apiBase+'/api/invitations/'+encodeURIComponent(invitationId)+'/rsvps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>{if(!r.ok)throw Error();e.currentTarget.querySelector('button').textContent='Thank you — your RSVP is sent';e.currentTarget.reset()}).catch(()=>alert('Your RSVP could not be saved right now. Please contact the couple directly.'));return}const message='RSVP for ${one} & ${two}: '+data.guestName+' — '+data.attendance+', '+data.guests+(data.note?' · '+data.note:'');location.href='https://wa.me/'+phone+'?text='+encodeURIComponent(message)})})();</script></body></html>`;
@@ -318,11 +351,19 @@ function loadSharedDraft() {
   try {
     const shared = JSON.parse(invite);
     draft = { ...defaultDraft, ...shared };
+    draft.events = normalizeEvents(shared.events, draft);
     return true;
   } catch { return false; }
 }
 
 form.addEventListener("input", (event) => {
+  if (event.target.matches("[data-event-field]")) {
+    const index = Number(event.target.dataset.eventIndex);
+    const key = event.target.dataset.eventField;
+    if (draft.events[index] && ["title", "tagline", "time"].includes(key)) draft.events[index][key] = event.target.value;
+    renderPreview(); saveDraft();
+    return;
+  }
   if (!event.target.name) return;
   if (event.target.name === "photo") {
     draft.photo = event.target.value === assetUrls.photo ? draft.photo : event.target.value;
@@ -341,6 +382,20 @@ form.addEventListener("input", (event) => {
     draft[event.target.name] = event.target.value;
   }
   renderPreview(); saveDraft();
+});
+document.getElementById("add-event-button").addEventListener("click", () => {
+  if (draft.events.length >= 12) { showToast("You can add up to 12 events."); return; }
+  const index = draft.events.length;
+  draft.events.push({ title: "", tagline: "", time: "" });
+  renderEventEditor(); renderPreview(); saveDraft();
+  document.querySelector(`[data-event-index="${index}"][data-event-field="title"]`)?.focus();
+});
+document.getElementById("event-editor-list").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-event]");
+  if (!button) return;
+  if (draft.events.length <= 1) { showToast("Keep at least one event in the schedule."); return; }
+  draft.events.splice(Number(button.dataset.removeEvent), 1);
+  renderEventEditor(); renderPreview(); saveDraft();
 });
 document.querySelectorAll(".filter-chip").forEach((chip) => chip.addEventListener("click", () => {
   activeFilter = chip.dataset.filter;
