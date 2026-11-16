@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f7f4ed" />
-    <meta name="description" content="Choose a wedding invitation design, make it yours, and share it with everyone you love." />
+    <meta name="description" content="Create an interactive, multi-section wedding invitation website and share a unique guest link." />
     <title>Vow & Verse — Wedding Invitation Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=beta-2" />
-    <script src="script.js?v=beta-2" defer></script>
+    <link rel="stylesheet" href="styles.css?v=beta-3" />
+    <script src="script.js?v=beta-3" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -61,35 +61,37 @@
               <label>Ceremony time<input name="time" type="time" value="17:00" /></label>
               <label class="full-field">Venue name<input name="venue" value="The Garden Courtyard" maxlength="70" /></label>
               <label class="full-field">City or address<input name="address" value="Jaipur, Rajasthan" maxlength="100" /></label>
-              <label class="full-field">A note for your guests<textarea name="message" rows="3" maxlength="220">With joy in our hearts, we invite you to celebrate the beginning of our forever.</textarea></label>
-              <label class="full-field">Photo URL <span class="optional">OPTIONAL</span><input name="photo" type="url" placeholder="https://…" /></label>
+              <label class="full-field">Your story / welcome note<textarea name="message" rows="3" maxlength="500">With joy in our hearts, we invite you to celebrate the beginning of our forever.</textarea></label>
+              <label class="full-field">Cover background image URL <span class="optional">OPTIONAL</span><input name="photo" type="url" placeholder="https://your-image.jpg" /><small>Paste a direct image URL. It becomes the full-screen cover background.</small></label>
             </div>
             <details class="more-details"><summary>More details <span>+</span></summary><div class="field-grid more-fields">
-              <label>RSVP phone<input name="phone" type="tel" placeholder="Country code + number" /></label>
+              <label>Couple’s WhatsApp for RSVPs<input name="phone" type="tel" placeholder="Country code + number" /><small>Guest responses open WhatsApp with their RSVP ready to send.</small></label>
               <label>Dress note<input name="dress" placeholder="Festive / Indian formal" maxlength="70" /></label>
+              <label>Event one<input name="eventOne" value="Wedding Ceremony" maxlength="50" /></label>
+              <label>Event one time<input name="eventOneTime" value="5:00 PM" maxlength="30" /></label>
+              <label>Event two<input name="eventTwo" value="Dinner & Celebration" maxlength="50" /></label>
+              <label>Event two time<input name="eventTwoTime" value="7:00 PM" maxlength="30" /></label>
             </div></details>
-            <div class="editor-actions"><button class="secondary-button" id="reset-button" type="button">Reset sample</button><button class="primary-button" type="button" id="download-button">Download invitation <span>↓</span></button></div>
-            <p class="download-note">Downloads as a single HTML file. You can send it to guests or host it on GitHub Pages.</p>
+            <div class="editor-actions"><button class="secondary-button" id="reset-button" type="button">Reset sample</button><button class="primary-button" type="button" id="download-button">Download website <span>↓</span></button></div>
+            <p class="download-note">Create a guest link to open the interactive invitation on this site, or download it as a standalone website.</p>
           </form>
 
           <div class="preview-column">
-            <div class="preview-toolbar"><div><span class="live-dot"></span> LIVE PREVIEW <small id="active-template-label">01 · THE GARDEN</small></div><button id="share-button" type="button" aria-label="Copy preview link">Copy preview link <span>↗</span></button></div>
-            <article class="invite-preview theme-garden" id="invite-preview">
-              <div class="preview-photo" id="preview-photo"></div><div class="preview-content"><div class="preview-frame"><span class="preview-ornament">✿</span><p class="preview-kicker">TOGETHER WITH THEIR FAMILIES</p><h3><span data-preview="partnerOne">Aarav</span><i>&amp;</i><span data-preview="partnerTwo">Meera</span></h3><div class="preview-divider">✧</div><p class="preview-copy" data-preview="message">With joy in our hearts, we invite you to celebrate the beginning of our forever.</p><p class="preview-date" data-preview="date">12 December 2026</p><p class="preview-time" data-preview="time">5:00 PM</p><div class="preview-venue" data-preview="venue">The Garden Courtyard</div><p class="preview-address" data-preview="address">Jaipur, Rajasthan</p><p class="preview-dress" data-preview="dress"></p><a class="preview-rsvp" data-preview-rsvp href="#">KINDLY REPLY</a></div></div>
-            </article>
-            <p class="preview-hint">This is how the invite looks to your guests. Select a different design to change the mood.</p>
+            <div class="preview-toolbar"><div><span class="live-dot"></span> FULL INVITATION WEBSITE <small id="active-template-label">01 · THE GARDEN</small></div><button id="share-button" type="button" aria-label="Copy guest invitation link">Copy guest link <span>↗</span></button></div>
+            <iframe class="invite-preview-frame" id="invite-preview-frame" title="Full interactive wedding invitation preview"></iframe>
+            <p class="preview-hint">Guest website preview · scroll inside to explore the cover, story, schedule, location and RSVP.</p>
           </div>
         </div>
       </section>
 
       <section class="steps-section">
-        <div class="steps-inner"><p class="kicker">SIMPLE AS THAT</p><h2>From “yes” to <em>sent.</em></h2><div class="steps-grid"><article><span>01</span><h3>Choose your design</h3><p>Browse 20 invitation styles, from modern minimal to full-on festive.</p></article><article><span>02</span><h3>Add your details</h3><p>Names, dates, venue and photos. Your preview updates as you type.</p></article><article><span>03</span><h3>Share the joy</h3><p>Download your invitation page and send it to family and friends.</p></article></div></div>
+        <div class="steps-inner"><p class="kicker">SIMPLE AS THAT</p><h2>From “yes” to <em>sent.</em></h2><div class="steps-grid"><article><span>01</span><h3>Choose your design</h3><p>Browse 20 invitation styles, from modern minimal to full-on festive.</p></article><article><span>02</span><h3>Build your wedding site</h3><p>Add your story, cover image, ceremony details, location and RSVP contact.</p></article><article><span>03</span><h3>Share the guest link</h3><p>Send guests their own invitation link with a countdown, directions and RSVP flow.</p></article></div></div>
       </section>
 
       <section class="pricing-section section-wrap" id="plans">
         <div class="section-heading"><div><p class="kicker">GOOD THINGS, CLEAR PRICES</p><h2>Pick your <em>package.</em></h2><p>Example launch pricing. Update amounts and checkout links before selling.</p></div></div>
         <div class="pricing-grid">
-          <article class="price-card"><p class="kicker">BETA · FREE</p><h3>Try every design</h3><p class="price">₹0 <small>/ during beta</small></p><p>Help us try the invitation builder and share your feedback.</p><ul><li>All 20 designs editable</li><li>Change names, date and venue</li><li>Download any design</li></ul><a class="price-button light" href="#templates">Start testing</a></article>
+          <article class="price-card"><p class="kicker">BETA · FREE</p><h3>Try every design</h3><p class="price">₹0 <small>/ during beta</small></p><p>Build a complete wedding website and share it with your guests.</p><ul><li>All 20 designs editable</li><li>Unique guest invitation link</li><li>Interactive RSVP and directions</li></ul><a class="price-button light" href="#templates">Start testing</a></article>
           <article class="price-card featured"><div class="popular-label">COMING SOON</div><p class="kicker">AFTER THE BETA</p><h3>Personal invitation</h3><p class="price">Pricing soon</p><p>We’re shaping the paid invitation package based on tester feedback.</p><ul><li>Hosted invitation links</li><li>Guest-ready event details</li><li>Custom domain options</li></ul><span class="price-button dark disabled">Available after beta</span></article>
           <article class="price-card"><p class="kicker">IN DEVELOPMENT</p><h3>Made for you</h3><p class="price">Coming later</p><p>Custom design and setup assistance are planned for launch.</p><ul><li>Personal colours and wording</li><li>Tradition-specific details</li><li>Personal setup assistance</li></ul><span class="price-button light disabled">Not available yet</span></article>
         </div>
