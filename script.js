@@ -149,7 +149,7 @@ function formatTime(value) {
 function renderPreview() {
   const theme = activeTemplate();
   document.getElementById("active-template-label").textContent = `${String(theme.id).padStart(2, "0")} · ${theme.name.toUpperCase()}`;
-  preview.srcdoc = makeInviteDocument("", assetUrls);
+  preview.srcdoc = makeInviteDocument("", assetUrls, true);
   renderTemplates();
 }
 
@@ -264,7 +264,7 @@ function showToast(message) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
 }
 
-function makeInviteDocument(invitationId = "", media = assetUrls) {
+function makeInviteDocument(invitationId = "", media = assetUrls, previewMode = false) {
   const theme = activeTemplate();
   const [bg, accent, ink] = theme.colors;
   const one = safeText(draft.partnerOne || "Your Name");
@@ -292,7 +292,7 @@ function makeInviteDocument(invitationId = "", media = assetUrls) {
 <section class="section events reveal" id="events"><div class="inner"><p class="label">SAVE THE DATE</p><h2>A day to remember.</h2><p class="story">${safeText(formatDate(draft.date))}</p><div class="cards"><article class="card"><small>01 · Ceremony</small><h3>${safeText(draft.eventOne || "Wedding Ceremony")}</h3><p>${safeText(draft.eventOneTime || formatTime(draft.time))}</p><p>${safeText(draft.venue || "Venue details soon")}</p></article><article class="card"><small>02 · Celebration</small><h3>${safeText(draft.eventTwo || "Dinner & Celebration")}</h3><p>${safeText(draft.eventTwoTime || "")}</p><p>${safeText(draft.venue || "Venue details soon")}</p></article></div>${draft.dress ? `<p class="dress">Attire · ${safeText(draft.dress)}</p>` : ""}</div></section>
 ${gallerySection}<section class="section travel reveal" id="travel"><div class="inner"><p class="label">COME CELEBRATE WITH US</p><h2>Meet us in<br><i>${safeText(draft.address || "our favourite place")}</i></h2><p class="story">${safeText(draft.venue || "Wedding venue")}${draft.address ? `<br>${safeText(draft.address)}` : ""}</p><div class="map-links"><a class="map" href="${venueMapHref}" target="_blank" rel="noopener noreferrer">Search venue in Google Maps ↗</a>${draft.hotel ? `<p class="hotel-note">${safeText(draft.hotel)}</p><a class="map" href="${hotelMapHref}" target="_blank" rel="noopener noreferrer">${safeGoogleMapsUrl(draft.hotelMapUrl) ? "Open hotel in Google Maps ↗" : "Search hotel in Google Maps ↗"}</a>` : ""}</div></div></section>
 <section class="section rsvp reveal" id="rsvp"><div class="inner"><p class="label">KINDLY REPLY</p><h2>Will you join us?</h2><p class="story">It would mean the world to celebrate together.</p><form class="form" id="rsvp-form"><input name="guest" required maxlength="60" placeholder="Your name" aria-label="Your name"><select name="attendance" aria-label="Will you attend?"><option value="yes">Joyfully accepts</option><option value="no">Sadly declines</option></select><select name="guests" aria-label="Number of guests"><option value="1">1 guest</option><option value="2">2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select><textarea name="note" rows="2" maxlength="160" placeholder="A note for the couple (optional)" aria-label="A note for the couple"></textarea><button type="submit">${guestInvitationId ? "Send RSVP" : "Send RSVP on WhatsApp"}</button></form><p class="note">${guestInvitationId ? "Your RSVP goes directly to the couple." : phone ? "RSVP opens WhatsApp with your response ready to send." : "RSVP details will be shared soon."}${draft.dress ? ` · Attire: ${safeText(draft.dress)}` : ""}</p></div></section></main><footer class="footer">MADE WITH LOVE · ${one} &amp; ${two}</footer>
-<script>(function(){const apiBase=${apiEndpoint},invitationId=${guestInvitationId};const c=document.getElementById('countdown'),t=Number(c.dataset.date);function tick(){let s=Math.max(0,Math.floor((t-Date.now())/1000)),v={days:Math.floor(s/86400),hours:Math.floor(s%86400/3600),minutes:Math.floor(s%3600/60),seconds:s%60};Object.keys(v).forEach(k=>c.querySelector('[data-unit="'+k+'"]').textContent=String(v[k]).padStart(2,'0'))}tick();setInterval(tick,1000);const items=[...document.querySelectorAll('.reveal')];if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});items.forEach(x=>io.observe(x))}else items.forEach(x=>x.classList.add('visible'));document.getElementById('rsvp-form').addEventListener('submit',e=>{e.preventDefault();const phone='${phone}';if(!phone&&!(apiBase&&invitationId)){alert('The couple has not enabled WhatsApp RSVPs yet. Please contact them directly.');return}const f=new FormData(e.currentTarget),data={guestName:String(f.get('guest')||'').trim(),attendance:f.get('attendance'),guests:f.get('guests'),note:f.get('note')||''};if(apiBase&&invitationId){fetch(apiBase+'/api/invitations/'+encodeURIComponent(invitationId)+'/rsvps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>{if(!r.ok)throw Error();e.currentTarget.querySelector('button').textContent='Thank you — your RSVP is sent';e.currentTarget.reset()}).catch(()=>alert('Your RSVP could not be saved right now. Please contact the couple directly.'));return}const message='RSVP for ${one} & ${two}: '+data.guestName+' — '+data.attendance+', '+data.guests+(data.note?' · '+data.note:'');location.href='https://wa.me/'+phone+'?text='+encodeURIComponent(message)})})();</script></body></html>`;
+<script>(function(){const apiBase=${apiEndpoint},invitationId=${guestInvitationId},previewMode=${JSON.stringify(previewMode)};const c=document.getElementById('countdown'),t=Number(c.dataset.date);function tick(){let s=Math.max(0,Math.floor((t-Date.now())/1000)),v={days:Math.floor(s/86400),hours:Math.floor(s%86400/3600),minutes:Math.floor(s%3600/60),seconds:s%60};Object.keys(v).forEach(k=>c.querySelector('[data-unit="'+k+'"]').textContent=String(v[k]).padStart(2,'0'))}tick();setInterval(tick,1000);const items=[...document.querySelectorAll('.reveal')];if('IntersectionObserver'in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.12});items.forEach(x=>io.observe(x))}else items.forEach(x=>x.classList.add('visible'));if(previewMode){document.querySelector('.cover .button').addEventListener('click',function(e){if(window.parent!==window&&typeof window.parent.openGuestInvitation==='function'){e.preventDefault();window.parent.openGuestInvitation()}})};document.getElementById('rsvp-form').addEventListener('submit',e=>{e.preventDefault();const phone='${phone}';if(!phone&&!(apiBase&&invitationId)){alert('The couple has not enabled WhatsApp RSVPs yet. Please contact them directly.');return}const f=new FormData(e.currentTarget),data={guestName:String(f.get('guest')||'').trim(),attendance:f.get('attendance'),guests:f.get('guests'),note:f.get('note')||''};if(apiBase&&invitationId){fetch(apiBase+'/api/invitations/'+encodeURIComponent(invitationId)+'/rsvps',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).then(r=>{if(!r.ok)throw Error();e.currentTarget.querySelector('button').textContent='Thank you — your RSVP is sent';e.currentTarget.reset()}).catch(()=>alert('Your RSVP could not be saved right now. Please contact the couple directly.'));return}const message='RSVP for ${one} & ${two}: '+data.guestName+' — '+data.attendance+', '+data.guests+(data.note?' · '+data.note:'');location.href='https://wa.me/'+phone+'?text='+encodeURIComponent(message)})})();</script></body></html>`;
 }
 async function downloadInvitation() {
   const selected = activeTemplate();
@@ -358,7 +358,7 @@ document.getElementById("refresh-rsvps").addEventListener("click", loadRsvps);
 document.getElementById("reset-button").addEventListener("click", () => {
   draft = { ...defaultDraft }; form.reset(); setFieldValues(); renderPreview(); saveDraft(); showToast("Sample invitation restored.");
 });
-document.getElementById("open-invite-button").addEventListener("click", async () => {
+async function openGuestInvitation() {
   const guestWindow = window.open("about:blank", "_blank");
   if (!guestWindow) { showToast("Allow pop-ups to open the guest website."); return; }
   guestWindow.opener = null;
@@ -376,7 +376,9 @@ document.getElementById("open-invite-button").addEventListener("click", async ()
     guestWindow.close();
     showToast(error.message);
   }
-});
+}
+window.openGuestInvitation = openGuestInvitation;
+document.getElementById("open-invite-button").addEventListener("click", openGuestInvitation);
 document.getElementById("share-button").addEventListener("click", async () => {
   let url;
   try {
