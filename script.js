@@ -7,6 +7,7 @@ const storeSettings = {
   prices: { single: 299, custom: 999 },
 };
 const apiBaseUrl = String(window.VOW_CONFIG?.apiBaseUrl || "").replace(/\/+$/, "");
+const storageUrlPrefix = String(window.VOW_CONFIG?.storageUrlPrefix || "");
 
 const templates = [
   { id: 1, name: "The Garden", mood: "Romantic · botanical", theme: "garden", layout: "floral", group: "free", colors: ["#6b7b68", "#d9c596", "#f5eddf"] },
@@ -61,6 +62,10 @@ let activeFilter = "all";
 let toastTimer;
 let cloudInvite = readCloudInvite();
 let cloudSaveTimer;
+let videoResolveTimer;
+let videoResolveRequest = 0;
+let videoResolutionSource = "";
+let signedVideoSource = "";
 let assetUrls = { photo: "", video: "", gallery: [] };
 const form = document.getElementById("editor-form");
 const templateGrid = document.getElementById("template-grid");
@@ -94,6 +99,10 @@ function safeText(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 }
 
+function isPrivateBucketUrl(value) {
+  return Boolean(storageUrlPrefix && String(value || "").trim().startsWith(storageUrlPrefix));
+}
+
 function safeGoogleMapsUrl(value) {
   try {
     const url = new URL(String(value || "").trim());
@@ -114,7 +123,7 @@ function setFieldValues() {
 
 function syncMediaFields() {
   form.elements.namedItem("photo").value = assetUrls.photo || draft.photo || "";
-  form.elements.namedItem("video").value = assetUrls.video || draft.video || "";
+  form.elements.namedItem("video").value = draft.video || "";
   const savedGallery = (draft.gallery || "").split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
   form.elements.namedItem("gallery").value = savedGallery.map((url, index) => assetUrls.gallery[index] || url).join("\n");
 }
@@ -141,6 +150,8 @@ function applyCloudInvitation(result) {
     video: result.assets?.video || draft.video || "",
     gallery: Array.isArray(result.assets?.gallery) ? result.assets.gallery : [],
   };
+  signedVideoSource = isPrivateBucketUrl(draft.video) && assetUrls.video ? draft.video : "";
+  videoResolutionSource = "";
 }
 
 function renderTemplates() {
@@ -182,6 +193,7 @@ function formatTime(value) {
 }
 
 function renderPreview() {
+  resolvePrivateVideoPreview();
   const theme = activeTemplate();
   document.getElementById("active-template-label").textContent = `${String(theme.id).padStart(2, "0")} · ${theme.name.toUpperCase()}`;
   preview.srcdoc = makeInviteDocument("", assetUrls, true);
@@ -226,6 +238,34 @@ async function saveCloudDraft() {
     body: JSON.stringify({ data: draft }),
   });
   document.getElementById("save-status").innerHTML = "<span></span> Saved to your invitation";
+}
+
+function resolvePrivateVideoPreview() {
+  const source = String(draft.video || "").trim();
+  if (!isPrivateBucketUrl(source) || (signedVideoSource === source && assetUrls.video) || videoResolutionSource === source) return;
+  clearTimeout(videoResolveTimer);
+  assetUrls.video = "";
+  const requestId = ++videoResolveRequest;
+  videoResolutionSource = source;
+  videoResolveTimer = setTimeout(async () => {
+    if (requestId !== videoResolveRequest || String(draft.video || "").trim() !== source) return;
+    const status = document.getElementById("upload-status");
+    try {
+      if (!apiBaseUrl) throw new Error("Connect the invitation API to preview a private Google Cloud video.");
+      const record = await ensureCloudInvite();
+      await saveCloudDraft();
+      const result = await apiRequest(`/api/invitations/${encodeURIComponent(record.slug)}`);
+      if (requestId !== videoResolveRequest || String(draft.video || "").trim() !== source) return;
+      const signedUrl = result.assets?.video || "";
+      if (!signedUrl || signedUrl === source) throw new Error("The video could not be signed. Check that it exists in this project's asset bucket.");
+      assetUrls.video = signedUrl;
+      signedVideoSource = source;
+      status.textContent = "Private Google Cloud video connected to the preview.";
+      renderPreview();
+    } catch (error) {
+      if (requestId === videoResolveRequest && String(draft.video || "").trim() === source) status.textContent = error.message;
+    }
+  }, 700);
 }
 
 async function prepareUpload(file, slot) {
@@ -308,7 +348,7 @@ function makeInviteDocument(invitationId = "", media = assetUrls, previewMode = 
   const photoCandidate = media?.photo || draft.photo;
   const imageUrl = /^https?:\/\//i.test(photoCandidate || "") ? photoCandidate : "";
   const image = imageUrl ? `url(${JSON.stringify(imageUrl)})` : "none";
-  const videoCandidate = media?.video || draft.video;
+  const videoCandidate = media?.video || (previewMode && isPrivateBucketUrl(draft.video) && signedVideoSource !== String(draft.video || "").trim() ? "" : draft.video);
   const videoUrl = /^https:\/\//i.test(videoCandidate || "") ? videoCandidate : "";
   const phone = (draft.phone || "").replace(/\D/g, "");
   const apiEndpoint = JSON.stringify(apiBaseUrl);
@@ -374,8 +414,14 @@ form.addEventListener("input", (event) => {
     draft.photo = event.target.value === assetUrls.photo ? draft.photo : event.target.value;
     if (event.target.value !== assetUrls.photo) assetUrls.photo = event.target.value;
   } else if (event.target.name === "video") {
-    draft.video = event.target.value === assetUrls.video ? draft.video : event.target.value;
-    assetUrls.video = event.target.value;
+    draft.video = event.target.value;
+    if (isPrivateBucketUrl(event.target.value)) {
+      if (signedVideoSource !== event.target.value.trim()) { assetUrls.video = ""; signedVideoSource = ""; videoResolutionSource = ""; }
+    } else {
+      assetUrls.video = event.target.value;
+      signedVideoSource = "";
+      videoResolutionSource = "";
+    }
   } else if (event.target.name === "gallery") {
     const visible = event.target.value.split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
     const saved = (draft.gallery || "").split(/\r?\n/).map((value) => value.trim()).filter(Boolean);
@@ -419,7 +465,7 @@ document.getElementById("gallery-upload").addEventListener("change", async (even
 });
 document.getElementById("refresh-rsvps").addEventListener("click", loadRsvps);
 document.getElementById("reset-button").addEventListener("click", () => {
-  draft = { ...defaultDraft }; assetUrls = { photo: "", video: "", gallery: [] }; form.reset(); setFieldValues(); renderPreview(); saveDraft(); showToast("Sample invitation restored.");
+  draft = { ...defaultDraft }; assetUrls = { photo: "", video: "", gallery: [] }; signedVideoSource = ""; videoResolutionSource = ""; form.reset(); setFieldValues(); renderPreview(); saveDraft(); showToast("Sample invitation restored.");
 });
 async function openGuestInvitation() {
   const guestWindow = window.open("about:blank", "_blank");
