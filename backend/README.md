@@ -22,7 +22,7 @@ If a Firestore database already exists, use its location instead of creating ano
 
 ```sh
 gcloud firestore databases create --project=vow-and-verse --database="(default)" --location=asia-south1 --type=firestore-native
-gcloud storage buckets create gs://vow-verse-beta-assets-532112246955 --project=vow-and-verse --location=asia-south1 --default-storage-class=STANDARD --uniform-bucket-level-access --public-access-prevention=enforced
+gcloud storage buckets create gs://vow-verse-beta-assets-532112246955 --project=vow-and-verse --location=asia-south1 --default-storage-class=STANDARD --uniform-bucket-level-access --pap
 gcloud storage buckets update gs://vow-verse-beta-assets-532112246955 --cors-file=backend/cors.json
 ```
 
