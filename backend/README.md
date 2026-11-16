@@ -44,7 +44,7 @@ gcloud iam service-accounts add-iam-policy-binding vow-verse-api@vow-and-verse.i
 
 ```sh
 gcloud run deploy vow-verse-api --project=vow-and-verse --source=backend --region=asia-south1 --allow-unauthenticated --service-account=vow-verse-api@vow-and-verse.iam.gserviceaccount.com --cpu=1 --memory=256Mi --min=0 --max=1 --concurrency=20 --timeout=15s
-gcloud run services update vow-verse-api --project=vow-and-verse --region=asia-south1 --update-env-vars=^@^STORAGE_BUCKET=vow-verse-beta-assets-532112246955@FIRESTORE_COLLECTION=invitations@ALLOWED_ORIGINS=https://beta.akshaysdigitalforest.in --min=0 --max=1
+gcloud run services update vow-verse-api --project=vow-and-verse --region=asia-south1 --update-env-vars=^@^STORAGE_BUCKET=vow-verse-beta-assets-532112246955@FIRESTORE_COLLECTION=invitations@ALLOWED_ORIGINS=https://beta.akshaysdigitalforest.in@PUBLIC_APP_URL=https://beta.akshaysdigitalforest.in --min=0 --max=1
 ```
 
 After deployment, open `https://YOUR_CLOUD_RUN_URL/api/health`. Then set that URL in the public `config.js` file:
@@ -58,6 +58,8 @@ Commit and push the frontend update to `main`; GitHub Pages will publish it. The
 ## How the beta works
 
 - The first share or upload creates a random invitation ID and an edit token. The edit token stays in that browser's local storage and is never put in the guest link.
+- The QR download endpoint creates a PNG that opens the same public guest link as the copied URL.
+- Venue and address are searched together in Google Maps. An optional hotel name and Google Maps share URL add a separate hotel directions link to the guest invitation.
 - Uploaded photos go directly from the browser to the private bucket using a signed upload policy, with an 8 MB server-enforced limit per image.
 - A guest link reads invitation details from Firestore and receives temporary signed photo URLs. RSVP replies are stored in Firestore; only the invitation owner can read the reply list.
 - The API allows beta traffic from the GitHub Pages domain and localhost. The API has a per-instance request limit and Cloud Run has a one-instance maximum.

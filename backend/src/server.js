@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
+import QRCode from "qrcode";
 import { Firestore, FieldValue } from "@google-cloud/firestore";
 import { Storage } from "@google-cloud/storage";
 
@@ -13,7 +14,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_DATA_BYTES = 30_000;
 const ALLOWED_FIELDS = new Set([
-  "templateId", "partnerOne", "partnerTwo", "date", "time", "venue", "address",
+  "templateId", "partnerOne", "partnerTwo", "date", "time", "venue", "address", "hotel", "hotelMapUrl",
   "message", "photo", "phone", "dress", "eventOne", "eventOneTime", "eventTwo",
   "eventTwoTime", "gallery",
 ]);
@@ -26,6 +27,7 @@ const bucket = storage.bucket(BUCKET_NAME);
 const app = express();
 const origins = (process.env.ALLOWED_ORIGINS || "https://beta.akshaysdigitalforest.in")
   .split(",").map((origin) => origin.trim()).filter(Boolean);
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || origins[0];
 
 app.disable("x-powered-by");
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -117,6 +119,23 @@ app.get("/api/invitations/:slug", async (req, res, next) => {
     const data = snapshot.get("data") || {};
     const assets = await createAssetUrls(data);
     res.set("Cache-Control", "no-store").json({ slug: snapshot.id, data, assets });
+  } catch (error) { next(error); }
+});
+
+app.get("/api/invitations/:slug/qr.png", async (req, res, next) => {
+  try {
+    const snapshot = await inviteRef(req.params.slug).get();
+    if (!snapshot.exists) return res.status(404).json({ error: "Invitation not found." });
+    const guestUrl = new URL("/", PUBLIC_APP_URL);
+    guestUrl.searchParams.set("invitation", snapshot.id);
+    const dataUrl = await QRCode.toDataURL(guestUrl.href, { errorCorrectionLevel: "H", margin: 2, width: 800 });
+    const image = Buffer.from(dataUrl.slice("data:image/png;base64,".length), "base64");
+    res.set({
+      "Content-Type": "image/png",
+      "Content-Disposition": `attachment; filename="vow-and-verse-${snapshot.id}-qr.png"`,
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    }).send(image);
   } catch (error) { next(error); }
 });
 
