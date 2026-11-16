@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://beta.akshaysdigitalforest.in", "http://localhost:4173"],
+    "method": ["GET", "POST", "OPTIONS"],
+    "responseHeader": ["Content-Type", "ETag"],
+    "maxAgeSeconds": 3600
+  }
+]

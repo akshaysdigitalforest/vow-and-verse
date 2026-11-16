@@ -10,7 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css?v=beta-4" />
-    <script src="script.js?v=beta-4" defer></script>
+    <script src="config.js?v=beta-4" defer></script>
+    <script src="script.js?v=beta-6" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -22,15 +23,15 @@
     <main id="top">
       <section class="intro-hero">
         <div class="hero-copy">
-          <p class="kicker"><span></span> WEDDING INVITATIONS, MADE PERSONAL</p>
-          <h1>A little page for<br />your <em>big forever.</em></h1>
-          <p class="hero-description">Choose a look, add your story, and make a wedding invitation that feels like the two of you.</p>
-          <a class="primary-button" href="#templates">Explore 20 designs <span>↓</span></a>
-          <div class="hero-proof"><span>✦</span> Edit in minutes <i></i> Share with one link <i></i> Yours to keep</div>
+          <p class="kicker"><span></span> A WEDDING STORY, BUILT AROUND YOU</p>
+          <h1>A day this<br />beautiful deserves<br /><em>its own world.</em></h1>
+          <p class="hero-description">Create a wedding website your guests can wander through: your story, the little details, the place, and the day you begin.</p>
+          <a class="primary-button" href="#templates">Find your invitation <span>↓</span></a>
+          <div class="hero-proof"><span>✦</span> Your story, in chapters <i></i> One link for every guest <i></i> Made together</div>
         </div>
-        <div class="hero-art" aria-label="Sample wedding invitation preview">
-          <div class="art-shadow"></div><div class="sample-invite"><div class="sample-top">TOGETHER WITH THEIR FAMILIES</div><div class="sample-flower">✿</div><div class="sample-names">Aarav <i>&amp;</i><br />Meera</div><div class="sample-rule"></div><p>INVITE YOU TO CELEBRATE</p><strong>12 · 12 · 2026</strong><small>JAIPUR · RAJASTHAN</small></div>
-          <div class="floating-note note-top"><span>✧</span> Your style, your story</div><div class="floating-note note-bottom">Made for sharing <b>↗</b></div>
+        <div class="hero-art" aria-label="Preview of a multi-section wedding invitation website">
+          <div class="hero-scenic"><div class="hero-window"><div class="hero-window-nav"><span>OUR STORY</span><span>THE DAY</span><span>RSVP</span></div><div class="hero-window-cover"><span>TOGETHER WITH OUR FAMILIES</span><div class="hero-window-flower">✿</div><h2>Aarav <i>&amp;</i><br />Meera</h2><p>12 · 12 · 2026</p><small>JAIPUR, RAJASTHAN</small><b>SCROLL TO DISCOVER ↓</b></div></div><div class="hero-page-stack"><span>AN INVITATION IN CHAPTERS</span><p><i>01</i> Our story</p><p><i>02</i> The celebration</p><p><i>03</i> Find us</p><p><i>04</i> Be our guest</p></div></div>
+          <div class="floating-note note-top"><span>✧</span> A little world of your own</div><div class="floating-note note-bottom">One guest link <b>↗</b></div>
           <div class="hero-spark spark-one">✳</div><div class="hero-spark spark-two">✧</div>
         </div>
       </section>
@@ -62,17 +63,21 @@
               <label class="full-field">Venue name<input name="venue" value="The Garden Courtyard" maxlength="70" /></label>
               <label class="full-field">City or address<input name="address" value="Jaipur, Rajasthan" maxlength="100" /></label>
               <label class="full-field">Your story / welcome note<textarea name="message" rows="3" maxlength="500">With joy in our hearts, we invite you to celebrate the beginning of our forever.</textarea></label>
-              <label class="full-field">Cover background image URL <span class="optional">OPTIONAL</span><input name="photo" type="url" placeholder="https://your-image.jpg" /><small>Paste a direct image URL. It becomes the full-screen cover background.</small></label>
+              <label class="full-field">Cover background image<input name="photo" type="url" placeholder="Paste an image link or upload a photo below" /><small>Use a direct image URL, or upload a photo. We’ll crop it gently to fill the opening scene.</small></label>
+              <label class="full-field upload-field">Upload a cover photo<input id="cover-upload" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG or WebP · up to 8 MB</small></label>
             </div>
             <details class="more-details"><summary>More details <span>+</span></summary><div class="field-grid more-fields">
-              <label>Couple’s WhatsApp for RSVPs<input name="phone" type="tel" placeholder="Country code + number" /><small>Guest responses open WhatsApp with their RSVP ready to send.</small></label>
+              <label>WhatsApp for standalone invitations<input name="phone" type="tel" placeholder="Country code + number" /><small>Hosted guest links save RSVPs here. Downloaded invitations can open WhatsApp.</small></label>
               <label>Dress note<input name="dress" placeholder="Festive / Indian formal" maxlength="70" /></label>
               <label>Event one<input name="eventOne" value="Wedding Ceremony" maxlength="50" /></label>
               <label>Event one time<input name="eventOneTime" value="5:00 PM" maxlength="30" /></label>
               <label>Event two<input name="eventTwo" value="Dinner & Celebration" maxlength="50" /></label>
               <label>Event two time<input name="eventTwoTime" value="7:00 PM" maxlength="30" /></label>
-              <label class="full-field">Gallery image URLs <span class="optional">OPTIONAL · ONE PER LINE</span><textarea name="gallery" rows="3" placeholder="https://photo-one.jpg&#10;https://photo-two.jpg&#10;https://photo-three.jpg"></textarea><small>Add up to three direct image URLs for a photo gallery.</small></label>
+              <label class="full-field">Gallery image URLs <span class="optional">OPTIONAL · ONE PER LINE</span><textarea name="gallery" rows="3" placeholder="https://photo-one.jpg&#10;https://photo-two.jpg&#10;https://photo-three.jpg"></textarea><small>Or upload up to three images here.</small></label>
+              <label class="full-field upload-field">Upload gallery photos<input id="gallery-upload" type="file" accept="image/jpeg,image/png,image/webp" multiple /><small>JPG, PNG or WebP · up to 8 MB each</small></label>
             </div></details>
+            <p class="upload-status" id="upload-status" aria-live="polite"></p>
+            <details class="more-details" id="rsvp-manager"><summary>Guest responses <span>+</span></summary><div class="rsvp-manager-content"><button type="button" class="secondary-button" id="refresh-rsvps">Refresh responses</button><div id="rsvp-results" aria-live="polite">Create a guest link to receive responses here.</div></div></details>
             <div class="editor-actions"><button class="secondary-button" id="reset-button" type="button">Reset sample</button><button class="primary-button" type="button" id="download-button">Download website <span>↓</span></button></div>
             <p class="download-note">Create a guest link to open the interactive invitation on this site, or download it as a standalone website.</p>
           </form>
@@ -96,7 +101,7 @@
           <article class="price-card featured"><div class="popular-label">COMING SOON</div><p class="kicker">AFTER THE BETA</p><h3>Personal invitation</h3><p class="price">Pricing soon</p><p>We’re shaping the paid invitation package based on tester feedback.</p><ul><li>Hosted invitation links</li><li>Guest-ready event details</li><li>Custom domain options</li></ul><span class="price-button dark disabled">Available after beta</span></article>
           <article class="price-card"><p class="kicker">IN DEVELOPMENT</p><h3>Made for you</h3><p class="price">Coming later</p><p>Custom design and setup assistance are planned for launch.</p><ul><li>Personal colours and wording</li><li>Tradition-specific details</li><li>Personal setup assistance</li></ul><span class="price-button light disabled">Not available yet</span></article>
         </div>
-        <p class="pricing-footnote">Beta builds download to your device. Drafts are saved in the browser you use.</p>
+        <p class="pricing-footnote">Share a hosted invitation link; your draft stays in this browser and syncs to its guest page.</p>
       </section>
     </main>
     <footer class="site-footer"><a class="brand" href="#top"><span class="brand-mark">V<span>&amp;</span>V</span><span>vow &amp; verse<small>THE INVITATION STUDIO</small></span></a><p>Made with a little love and a lot of celebration. <span>✧</span></p><a href="#top">Back to top ↑</a></footer>
